@@ -245,6 +245,32 @@
     }
     tbody tr { animation: fadeUp .3s ease both; }
 
+    /* ── Promedio card ─────────────────────────── */
+    .promedio-card {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .promedio-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .promedio-valor {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      line-height: 1;
+      color: var(--accent);
+    }
+    .promedio-valor.mid  { color: var(--accent2); }
+    .promedio-valor.low  { color: var(--danger); }
+
     /* ── Responsive ────────────────────────────── */
     @media (max-width: 560px) {
       .fields { grid-template-columns: 1fr; }
@@ -291,6 +317,12 @@
     <div class="table-wrap" id="tabla-wrap">
       <!-- renderizado por JS -->
     </div>
+    <div class="promedio-card" id="promedio-card" style="display:none">
+      <div>
+        <div class="promedio-label">Promedio de notas</div>
+        <div class="promedio-valor" id="promedio-valor">—</div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -335,6 +367,7 @@
           <div class="empty-icon">📋</div>
           <p>Aún no hay alumnos cargados.<br/>Completá el formulario y presioná <strong>Agregar alumno</strong>.</p>
         </div>`;
+      document.getElementById('promedio-card').style.display = 'none';
       return;
     }
 
@@ -360,6 +393,14 @@
         </thead>
         <tbody>${rows}</tbody>
       </table>`;
+
+    // Promedio
+    const promedio = alumnos.reduce((s, a) => s + a.nota, 0) / alumnos.length;
+    const pCard = document.getElementById('promedio-card');
+    const pVal  = document.getElementById('promedio-valor');
+    pCard.style.display = 'flex';
+    pVal.textContent = promedio.toFixed(2);
+    pVal.className = 'promedio-valor' + (promedio >= 7 ? '' : promedio >= 5 ? ' mid' : ' low');
   }
 
   /* ── Agregar alumno ────────────────────────── */

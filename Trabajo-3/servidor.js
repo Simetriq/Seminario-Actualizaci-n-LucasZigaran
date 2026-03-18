@@ -88,6 +88,12 @@ function paginaHTML() {
     .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
     .empty-icon { font-size: 40px; margin-bottom: 12px; }
     .empty p { font-size: 14px; }
+    .promedio-card { margin-top: 20px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 28px; display: flex; align-items: center; gap: 16px; }
+    .promedio-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .promedio-valor { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; color: var(--accent); }
+    .promedio-valor.mid { color: var(--accent2); }
+    .promedio-valor.low { color: var(--danger); }
     .status { font-size: 12px; color: var(--muted); margin-top: 12px; transition: color .3s; }
     .status.ok  { color: #6bffb8; }
     .status.err { color: var(--danger); }
@@ -134,6 +140,12 @@ function paginaHTML() {
   <div class="table-section">
     <h2>Datos de Alumnos</h2>
     <div class="table-wrap" id="tabla-wrap"></div>
+    <div class="promedio-card" id="promedio-card" style="display:none">
+      <div>
+        <div class="promedio-label">Promedio de notas</div>
+        <div class="promedio-valor" id="promedio-valor">—</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -163,6 +175,7 @@ function paginaHTML() {
     const wrap = document.getElementById('tabla-wrap');
     if (!alumnos.length) {
       wrap.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Aún no hay alumnos cargados.<br/>Completá el formulario y presioná <strong>Agregar alumno</strong>.</p></div>';
+      document.getElementById('promedio-card').style.display = 'none';
       return;
     }
     const rows = alumnos.map((a,i) => \`
@@ -176,6 +189,14 @@ function paginaHTML() {
     wrap.innerHTML = \`<table>
       <thead><tr><th>#</th><th>Nombre</th><th>Edad</th><th>Nota</th><th></th></tr></thead>
       <tbody>\${rows}</tbody></table>\`;
+
+    // Promedio
+    const promedio = alumnos.reduce((s,a) => s + a.nota, 0) / alumnos.length;
+    const pCard = document.getElementById('promedio-card');
+    const pVal  = document.getElementById('promedio-valor');
+    pCard.style.display = 'flex';
+    pVal.textContent = promedio.toFixed(2);
+    pVal.className = 'promedio-valor' + (promedio >= 7 ? '' : promedio >= 5 ? ' mid' : ' low');
   }
 
   async function agregarAlumno() {
