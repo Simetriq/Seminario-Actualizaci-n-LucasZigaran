@@ -2,12 +2,72 @@ const EPOCHS = 500;
 let model = null;
 let trained = false;
 
+// Arreglo para almacenar los valores de loss
+let losses = [];
+let chart = null;
+let chartInitialized = false;
+
 // Build model on load
 window.addEventListener('load', () => {
   model = tf.sequential();
   model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
   model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
+
+  // Inicializar gráfica vacía
+  initChart();
 });
+
+function initChart() {
+  const ctx = document.getElementById('lossChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Loss (Error cuadrático medio)',
+        data: [],
+        borderColor: '#ff8c00',
+        backgroundColor: 'rgba(255, 140, 0, 0.1)',
+        borderWidth: 2,
+        pointRadius: 2,
+        pointBackgroundColor: '#ff8c00',
+        tension: 0.2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Épocas', font: { weight: 'bold' } },
+          ticks: {
+            maxTicksLimit: 10,
+            autoSkip: true
+          }
+        },
+        y: {
+          title: { display: true, text: 'Loss (MSE)', font: { weight: 'bold' } },
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: (ctx) => `Loss: ${ctx.raw.toFixed(6)}` } },
+        legend: { position: 'top' }
+      }
+    }
+  });
+  chartInitialized = true;
+}
+
+function updateChart(epoch, lossValue) {
+  if (!chartInitialized) return;
+  // Agregar nuevo punto
+  chart.data.labels.push(epoch);
+  chart.data.datasets[0].data.push(lossValue);
+  // Opcional: limitar cantidad de puntos (EPOCHS)
+  chart.update('none'); // actualización suave
+}
 
 async function startTraining() {
   if (trained) return;
@@ -18,8 +78,14 @@ async function startTraining() {
 
   setStatus('running', 'Entrenando el modelo, por favor esperá…');
 
-  // Data for y = 2x + 6, starting at x = -6, 9 samples
-  // x: -6,-5,-4,-3,-2,-1,0,1,2  →  y: -6,-4,-2,0,2,4,6,8,10
+  // Reiniciar arreglo de losses y limpiar gráfica si se vuelve a entrenar
+  losses = [];
+  if (chartInitialized) {
+    chart.data.labels = [];
+    chart.data.datasets[0].data = [];
+    chart.update();
+  }
+
   const xData = [-6, -5, -4, -3, -2, -1, 0, 1, 2];
   const yData = xData.map(x => 2 * x + 6);
 
@@ -30,10 +96,16 @@ async function startTraining() {
     epochs: EPOCHS,
     callbacks: {
       onEpochEnd: (epoch, logs) => {
+        const loss = logs.loss;
+        // Guardar en arreglo
+        losses.push(loss);
+        // Actualizar UI
         const pct = ((epoch + 1) / EPOCHS) * 100;
         document.getElementById('progressBar').style.width = pct + '%';
         document.getElementById('epochLabel').textContent = `Época: ${epoch + 1} / ${EPOCHS}`;
-        document.getElementById('lossLabel').textContent = `Loss: ${logs.loss.toFixed(6)}`;
+        document.getElementById('lossLabel').textContent = `Loss: ${loss.toFixed(6)}`;
+        // Actualizar gráfica (época empieza en 0, mostramos +1 para que sea más natural)
+        updateChart(epoch + 1, loss);
       }
     }
   });

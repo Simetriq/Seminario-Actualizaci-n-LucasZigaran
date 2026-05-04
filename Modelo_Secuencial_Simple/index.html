@@ -3,71 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TensorFlow.js — y = 2x + 6</title>
+  <title>TensorFlow.js — Regresión Lineal + Gráfica de Pérdida</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="container">
-
   <header>
-    <div class="tf-badge">
-      🧠 <span>TensorFlow.js</span> &nbsp;·&nbsp; Regresión Lineal
-    </div>
+    <div class="tf-badge">🧠 <span>TensorFlow.js</span> &nbsp;·&nbsp; Regresión Lineal</div>
     <h1>Modelo Secuencial</h1>
     <div class="formula">y = 2x + 6</div>
     <p class="subtitle">Regresión lineal secuencial · Dense(1)</p>
   </header>
 
+  <!-- Tarjeta de entrenamiento -->
   <div class="card">
-    <div class="card-title">
-      <span class="icon">⚙️</span> Entrenar Modelo
-    </div>
-    <div class="status-bar" id="statusBar">
+    <div class="card-title"><span class="icon">⚙️</span> Entrenar Modelo</div>
+    <div class="status-bar">
       <div class="status-dot idle" id="statusDot"></div>
       <span id="statusText">Modelo listo. Presiona "Empezar Entrenamiento".</span>
     </div>
-    <div class="progress-wrap">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
     <div class="epoch-info">
       <span id="epochLabel">Época: 0 / 500</span>
       <span id="lossLabel">Loss: —</span>
     </div>
-    <button class="btn btn-train" id="btnTrain" onclick="startTraining()">
-      ▶ Empezar Entrenamiento
-    </button>
+    <button class="btn btn-train" id="btnTrain" onclick="startTraining()">▶ Empezar Entrenamiento</button>
   </div>
 
+  <!-- NUEVA TARJETA: Gráfica de pérdida -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📉</span> Evolución del error (Loss)</div>
+    <canvas id="lossChart" width="400" height="200" style="width:100%; height:auto; background:#0a0d18; border-radius:12px; padding:8px;"></canvas>
+    <p class="subtitle" style="margin-top:12px; font-size:0.7rem; text-align:center;">Pérdida por época → debe decrecer</p>
+  </div>
   <div class="card">
     <div class="predict-header">
-      <div class="predict-title">
-        <span class="icon">🔮</span> Predecir valor
-      </div>
+      <div class="predict-title"><span class="icon">🔮</span> Predecir valor</div>
       <span class="model-badge untrained" id="modelBadge">✕ No entrenado</span>
     </div>
     <label class="input-label" for="xInput">Valor de X</label>
-    <div class="input-wrap">
-      <input type="number" id="xInput" value="4" step="1" placeholder="Ingresá un número" />
-    </div>
-    <button class="btn btn-predict" id="btnPredict" onclick="predict()" disabled>
-      ✦ Predecir
-    </button>
+    <div class="input-wrap"><input type="number" id="xInput" value="4" step="1" /></div>
+    <button class="btn btn-predict" id="btnPredict" onclick="predict()" disabled>✦ Predecir</button>
     <div class="result-box" id="resultBox">
       <div class="result-label">Resultado de la predicción</div>
-      <div class="result-placeholder" id="resultPlaceholder">
-        <span></span><span></span><span></span>
-      </div>
+      <div class="result-placeholder" id="resultPlaceholder"><span></span><span></span><span></span></div>
       <div class="result-value" id="resultValue"></div>
       <div class="result-formula" id="resultFormula">y = peso · x + sesgo</div>
     </div>
   </div>
 
-  <footer>
-    🧬 Modelo secuencial Dense(1) &nbsp;·&nbsp; <span>500 épocas</span> &nbsp;·&nbsp; 9 muestras
-  </footer>
-
+  <footer>🧬 Modelo secuencial Dense(1) &nbsp;·&nbsp; <span>500 épocas</span> &nbsp;·&nbsp; 9 muestras</footer>
 </div>
 
 <div class="toast" id="toast"></div>

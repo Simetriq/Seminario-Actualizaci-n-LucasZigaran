@@ -398,3 +398,14 @@ footer span { color: var(--accent); }
 }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Estilos adicionales para el canvas de la gráfica */
+canvas {
+  max-width: 100%;
+  height: auto;
+  background: rgba(10, 13, 24, 0.7);
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+}
